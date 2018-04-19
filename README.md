@@ -2,6 +2,21 @@
 
 Module created to allow for easy extraction of Time Data from Toggl's API, via PowerShell Invoke-WebRequest cmdlets. For use with other cmdlets and scripts.
 
+## Installation
+
+Clone the repository into your **$Home\Documents\WindowsPowerShell\Modules** folder (create the Modules folder if you dont have one already)
+
+```powershell
+cd $Home\Documents\WindowsPowerShell\Modules\
+git clone git@github.com:mikepruett3/ps-toggldl.git
+```
+
+Then you can import the custom module into your running shell...
+
+```powershell
+Import-Module ps-toggldl
+```
+
 ## Usage
 
 ### Connect to Toggl's API
