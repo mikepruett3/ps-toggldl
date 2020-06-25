@@ -23,20 +23,10 @@ function Get-Projects {
     }
 
     process {
+        # Querying Toggle API for latest Time Entries
+        Write-Verbose "Project List Retrieved!"
         Try {
-            # Querying Toggle API for latest Time Entries
             $Query = Invoke-RestMethod -Method Get -Uri ($RootURI + '/workspaces/' + $Workspace + "/projects") -Headers $Headers -ContentType $contentType -ErrorAction Stop
-            Write-Verbose "Project List Retrieved!"
-            # Building new Object of results from Time Entries Query
-            foreach ($entry in $Query) {
-                $Temp = New-Object System.Object
-                $Temp | Add-Member -MemberType NoteProperty -Name "ProjectID" -Value $entry.id
-                $Temp | Add-Member -MemberType NoteProperty -Name "Client" -Value (Get-Clients | Where-Object {$_.ClientID -eq $entry.cid} | Select-Object -ExpandProperty Name)
-                $Temp | Add-Member -MemberType NoteProperty -Name "Name" -Value $entry.name
-                $Temp | Add-Member -MemberType NoteProperty -Name "Active" -Value $entry.active
-                $Temp | Add-Member -MemberType NoteProperty -Name "Private" -Value $entry.is_private
-                $Result.Add($Temp) | Out-Null
-            }
         }
         Catch {  
             $response = $_.Exception.Response.GetResponseStream()
@@ -44,10 +34,20 @@ function Get-Projects {
             $reader.BaseStream.Position = 0
             $reader.DiscardBufferedData()
             $responseBody = $reader.ReadToEnd();
-            Write-Host -ForegroundColor Red $_ "---->" $responseBody
+            Write-Error $_ "---->" $responseBody
             Break
         }
-        $Result
+        # Building new Object of results from Time Entries Query
+        foreach ($entry in $Query) {
+            $Temp = New-Object System.Object
+            $Temp | Add-Member -MemberType NoteProperty -Name "ProjectID" -Value $entry.id
+            $Temp | Add-Member -MemberType NoteProperty -Name "Client" -Value (Get-Clients | Where-Object {$_.ClientID -eq $entry.cid} | Select-Object -ExpandProperty Name)
+            $Temp | Add-Member -MemberType NoteProperty -Name "Name" -Value $entry.name
+            $Temp | Add-Member -MemberType NoteProperty -Name "Active" -Value $entry.active
+            $Temp | Add-Member -MemberType NoteProperty -Name "Private" -Value $entry.is_private
+            $Result.Add($Temp) | Out-Null
+        }
+        Return $Result
     }
 
     end {
